@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <title>欢迎来向海</title>
+    <link rel="stylesheet" href="./css/reset.css" />
+    <link rel="stylesheet" href="./css/tdesign.min.css" />
+    <link rel="stylesheet" href="./css/index.css" />
+  </head>
+  <body>
+    <script src="./js/vue.global.js"></script>
+
+    <div id="app">
+      <div class="position-options">
+        <audio ref="audioRef" loop>
+          <source src="./assets/bgm.m4a" />
+          <source src="./assets/bgm.m4a" />
+          您的浏览器不支持 audio 元素。
+        </audio>
+        <div>
+          <svg
+            v-if="pageMark != 1"
+            class="icon"
+            aria-hidden="true"
+            @click="handleTapBack"
+          >
+            <use xlink:href="#icon-fanhui"></use>
+          </svg>
+        </div>
+        <div>
+          <svg class="icon" aria-hidden="true" @click="langMark = true">
+            <use xlink:href="#icon-qiehuanyuyan"></use>
+          </svg>
+          <svg class="icon" aria-hidden="true" @click="handleVoiceToogle">
+            <use xlink:href="#icon-jingyin" v-if="!audioPaused"></use>
+            <use xlink:href="#icon-yinle_2" v-else></use>
+          </svg>
+        </div>
+      </div>
+      <div class="poster-container" v-if="pageMark == 1">
+        <t-image :src="posterTitle"></t-image>
+
+        <t-image
+          fit="cover"
+          position="center"
+          src="./assets/index_bg.jpg"
+        ></t-image>
+
+        <t-button
+          class="next-step"
+          block
+          theme="primary"
+          size="medium"
+          :icon="translate"
+          @click="handleChangePage(2)"
+          >下一步</t-button
+        >
+        <!-- <t-guide v-model="posterStepsMark" :steps="posterSteps"> </t-guide> -->
+      </div>
+      <div class="layout-container" v-else-if="pageMark == 2">
+        <div class="layout-background">
+          <t-image
+            fit="cover"
+            position="center"
+            src="./assets/bg.jpg"
+          ></t-image>
+        </div>
+        <!-- <div class="layout-header">{{title}}</div> -->
+        <div class="steps-vertical">
+          <div class="steps-vertical-back">
+            <t-steps
+              layout="vertical"
+              theme="dot"
+              readonly
+              :current="stepContents.length"
+            >
+              <t-step-item
+                v-for="(item, index) in stepContents"
+                :key="index"
+                :content="item.subTitle"
+                @click="handleTapDetail(item.id)"
+              >
+                <template #title>
+                  <t-image
+                    :style="{ width: '72px', height: '72px' }"
+                    fit="cover"
+                    position="center"
+                    :src="item.banner"
+                  ></t-image>
+                  <span>{{item.title}}</span>
+                </template>
+              </t-step-item>
+            </t-steps>
+          </div>
+        </div>
+      </div>
+      <div class="layout-container" v-else-if="pageMark == 3">
+        <div class="layout-background">
+          <t-image
+            fit="cover"
+            position="center"
+            src="./assets/bg.jpg"
+          ></t-image>
+        </div>
+        <div class="layout-detail">
+          <div class="layout-detail-border">
+            <div class="layout-detail-title">{{curInfo.title}}</div>
+            <t-image
+              fit="cover"
+              position="center"
+              :src="curInfo.cover"
+            ></t-image>
+            <div class="layout-detail-intro">{{curInfo.intro}}</div>
+          </div>
+          <div class="layout-detail-opt">
+            <t-button
+              class="normal-btn"
+              theme="primary"
+              size="medium"
+              @click="handleTapBack"
+              >返 回</t-button
+            >
+            <t-button
+              class="normal-btn"
+              theme="primary"
+              size="medium"
+              @click="handleTellWithVoice"
+              >语音讲解</t-button
+            >
+            <audio ref="audioRef2" v-if="curInfo.voice">
+              <source :src="curInfo.voice" />
+              您的浏览器不支持 audio 元素。
+            </audio>
+          </div>
+        </div>
+      </div>
+
+      <t-action-sheet
+        v-model="langMark"
+        :items="['中文', '英语', '日语']"
+        @selected="handleChangeLang"
+      />
+      <!-- <t-popup placement="bottom" v-model="langMark"> </t-popup> -->
+    </div>
+
+    <script src="./js/flexible.js"></script>
+    <script src="./js/flexible_css.js"></script>
+    <script src="./js/iconfont.js"></script>
+    <script src="./js/tdesign.min.js"></script>
+    <script src="./js/myLang.js"></script>
+    <script>
+      const { createApp, ref, watchEffect } = Vue;
+
+      const composition = {
+        setup() {
+          const pageMark = ref(1);
+          const lang = ref("zh");
+          const title = "行程路线";
+          const posterStepsMark = ref(true);
+          const posterSteps = [
+            {
+              element: ".next-step",
+              title: "用户引导标题",
+              body: "用户引导的说明文案",
+              placement: "bottom",
+              highlightPadding: 0,
+            },
+          ];
+          const stepContents = ref();
+          const curInfo = ref({});
+          const posterTitle = ref("");
+          const audioRef = ref(null);
+          const audioPaused = ref(false);
+          const langMark = ref(false);
+          const curIdx = ref(0);
+          const audioRef2 = ref(null);
+
+          watchEffect(() => {
+            posterTitle.value = `./assets/${lang.value}_title.jpg`;
+            stepContents.value = [
+              {
+                id: 1,
+                title: langList["area1"]["title"][lang.value],
+                cover: "./assets/xianhedao.jpg",
+                banner: "./assets/banner1.png",
+                subTitle: langList["area1"]["subTitle"][lang.value],
+                intro: langList["area1"]["intro"][lang.value],
+                voice: `./assets/${lang.value}v1.mp3`,
+              },
+              {
+                id: 2,
+                title: langList["area2"]["title"][lang.value],
+                cover: "./assets/huangyulin.jpg",
+                banner: "./assets/banner2.png",
+                subTitle: langList["area2"]["subTitle"][lang.value],
+                intro: langList["area2"]["intro"][lang.value],
+                voice: `./assets/${lang.value}v2.mp3`,
+              },
+              {
+                id: 3,
+                title: langList["area3"]["title"][lang.value],
+                cover: "./assets/xianhedao.jpg",
+                banner: "./assets/banner3.png",
+                subTitle: langList["area3"]["subTitle"][lang.value],
+                intro: langList["area3"]["intro"][lang.value],
+                voice: `./assets/${lang.value}v3.mp3`,
+              },
+              {
+                id: 4,
+                title: langList["area4"]["title"][lang.value],
+                cover: "./assets/xianhedao.jpg",
+                banner: "./assets/banner3.png",
+                subTitle: langList["area4"]["subTitle"][lang.value],
+                intro: langList["area4"]["intro"][lang.value],
+                voice: `./assets/${lang.value}v4.mp3`,
+              },
+            ];
+            curInfo.value = stepContents.value.find(
+              (item) => item.id === curIdx.value
+            );
+          });
+
+          const getImageUrl = (url) => {
+            return `./assets/${url}.jpg`;
+          };
+
+          const handleChangePage = (page) => {
+            pageMark.value = page;
+          };
+
+          const handleChangeLang = (e) => {
+            lang.value = e === "中文" ? "zh" : e === "英语" ? "en" : "jp";
+          };
+
+          const handleTapDetail = (id) => {
+            curIdx.value = id;
+            handleChangePage(3);
+          };
+
+          const handleTapBack = () => {
+            pageMark.value = pageMark.value - 1;
+          };
+
+          const handleVoiceToogle = () => {
+            if (audioRef.value.paused) {
+              audioRef.value.play();
+              audioPaused.value = true;
+            } else {
+              audioRef.value.pause();
+              audioPaused.value = false;
+            }
+          };
+
+          const handleTellWithVoice = () => {
+            if (!(audioRef.value && audioRef.value.paused)) {
+              audioRef.value.pause();
+            }
+            audioRef2.value.load();
+            if (audioRef2.value.paused) {
+              audioRef2.value.play();
+            } else {
+              audioRef2.value.pause();
+            }
+          };
+
+          return {
+            posterTitle,
+            posterStepsMark,
+            posterSteps,
+            title,
+            pageMark,
+            lang,
+            stepContents,
+            audioRef,
+            audioPaused,
+            langMark,
+            curInfo,
+            audioRef2,
+            handleChangePage,
+            handleChangeLang,
+            handleTapDetail,
+            handleTapBack,
+            getImageUrl,
+            handleVoiceToogle,
+            handleTellWithVoice,
+          };
+        },
+      };
+
+      const app = createApp(composition).use(TDesign).mount("#app");
+    </script>
+  </body>
+</html>
