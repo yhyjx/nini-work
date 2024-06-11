@@ -43,7 +43,7 @@
       </div>
       <div class="poster-container" v-if="pageMark == 1">
         <t-image
-          :style="{ width: '100px', height: '72px',position: 'absolute' }"
+          :style="{ width: '209px', left: '100px',top: '178px',position: 'absolute' }"
           :src="posterTitle"
         ></t-image>
 
@@ -60,7 +60,7 @@
           size="medium"
           :icon="translate"
           @click="handleChangePage(2)"
-          >下一步</t-button
+          >{{ options[lang]['t1'] }}</t-button
         >
         <!-- <t-guide v-model="posterStepsMark" :steps="posterSteps"> </t-guide> -->
       </div>
@@ -146,6 +146,7 @@
       <t-action-sheet
         v-model="langMark"
         :items="['中文', '英语', '日语']"
+        @cacel="langMark = false"
         @selected="handleChangeLang"
       />
       <!-- <t-popup placement="bottom" v-model="langMark"> </t-popup> -->
@@ -161,6 +162,23 @@
 
       const composition = {
         setup() {
+          const options = {
+            zh: {
+              t1: "下一步",
+              t2: "返 回",
+              t3: "语音讲解",
+            },
+            en: {
+              t1: "Next step",
+              t2: "Return",
+              t3: "Voice explanation",
+            },
+            jp: {
+              t1: "次のステップ",
+              t2: "リターンマッチ",
+              t3: "音声解説",
+            },
+          };
           const pageMark = ref(1);
           const lang = ref("zh");
           const title = "行程路线";
@@ -180,7 +198,7 @@
           const audioRef = ref(null);
           const audioPaused = ref(false);
           const langMark = ref(false);
-          const curIdx = ref(0);
+          const curIdx = ref(1);
           const audioRef2 = ref(null);
 
           watchEffect(() => {
@@ -272,6 +290,7 @@
           };
 
           return {
+            options,
             posterTitle,
             posterStepsMark,
             posterSteps,
