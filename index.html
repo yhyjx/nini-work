@@ -15,12 +15,12 @@
     <script src="./js/vue.global.js"></script>
 
     <div id="app" v-cloak>
+      <audio ref="audioRef" loop>
+        <source src="./assets/bgm.m4a" />
+        <source src="./assets/bgm.m4a" />
+        您的浏览器不支持 audio 元素。
+      </audio>
       <div class="position-options">
-        <audio ref="audioRef" loop>
-          <source src="./assets/bgm.m4a" />
-          <source src="./assets/bgm.m4a" />
-          您的浏览器不支持 audio 元素。
-        </audio>
         <div>
           <svg
             v-if="pageMark != 1"
@@ -42,7 +42,10 @@
         </div>
       </div>
       <div class="poster-container" v-if="pageMark == 1">
-        <t-image :src="posterTitle"></t-image>
+        <t-image
+          :style="{ width: '100px', height: '72px',position: 'absolute' }"
+          :src="posterTitle"
+        ></t-image>
 
         <t-image
           fit="cover"
@@ -83,10 +86,11 @@
                 :key="index"
                 :content="item.subTitle"
                 @click="handleTapDetail(item.id)"
+                :class="[lang === 'zh' ? 'zh' : lang === 'en' ? 'en':'jp']"
               >
                 <template #title>
                   <t-image
-                    :style="{ width: '72px', height: '72px' }"
+                    :style="{ width: '72px', height: '72px',margin: '0 0 10px 0' }"
                     fit="cover"
                     position="center"
                     :src="item.banner"
@@ -131,7 +135,7 @@
               @click="handleTellWithVoice"
               >语音讲解</t-button
             >
-            <audio ref="audioRef2" v-if="curInfo.voice">
+            <audio ref="audioRef2">
               <source :src="curInfo.voice" />
               您的浏览器不支持 audio 元素。
             </audio>
