@@ -43,8 +43,13 @@
       </div>
       <div class="poster-container" v-if="pageMark == 1">
         <t-image
-          :style="{ width: '209px', left: '100px',top: '178px',position: 'absolute' }"
+          :style="lang==='cn'? { width: '209px', left: '80px',top: '165px',position: 'absolute' }:lang==='en'?{ width: '281px', left: '50px',top: '170px',position: 'absolute' }:{ width: '200px', left: '95px',top: '146px',position: 'absolute' }"
           :src="posterTitle"
+        ></t-image>
+
+        <t-image
+          :style="lang==='cn'?{ width: '277px', left: '61px',top: '275px',position: 'absolute' }:lang==='en'?{ width: '277px', left: '61px',top: '293px',position: 'absolute' }:{  width: '277px', left: '61px',top: '260px',position: 'absolute' }"
+          :src="posterTitle2"
         ></t-image>
 
         <t-image
@@ -86,7 +91,7 @@
                 :key="index"
                 :content="item.subTitle"
                 @click="handleTapDetail(item.id)"
-                :class="[lang === 'zh' ? 'zh' : lang === 'en' ? 'en':'jp']"
+                :class="[lang === 'cn' ? 'cn' : lang === 'en' ? 'en':'jp']"
               >
                 <template #title>
                   <t-image
@@ -158,12 +163,12 @@
     <script src="./js/tdesign.min.js"></script>
     <script src="./js/myLang.js"></script>
     <script>
-      const { createApp, ref, watchEffect } = Vue;
+      const { createApp, ref, watchEffect, watch } = Vue;
 
       const composition = {
         setup() {
           const options = {
-            zh: {
+            cn: {
               t1: "下一步",
               t2: "返 回",
               t3: "语音讲解",
@@ -180,7 +185,7 @@
             },
           };
           const pageMark = ref(1);
-          const lang = ref("zh");
+          const lang = ref("cn");
           const title = "行程路线";
           const posterStepsMark = ref(true);
           const posterSteps = [
@@ -195,56 +200,65 @@
           const stepContents = ref();
           const curInfo = ref({});
           const posterTitle = ref("");
+          const posterTitle2 = ref("");
           const audioRef = ref(null);
           const audioPaused = ref(false);
           const langMark = ref(false);
           const curIdx = ref(1);
           const audioRef2 = ref(null);
 
-          watchEffect(() => {
-            posterTitle.value = `./assets/${lang.value}_title.jpg`;
-            stepContents.value = [
-              {
-                id: 1,
-                title: langList["area1"]["title"][lang.value],
-                cover: "https://s21.ax1x.com/2024/06/11/pkUQX7V.jpg",
-                banner: "https://s21.ax1x.com/2024/06/11/pkUMyq0.png",
-                subTitle: langList["area1"]["subTitle"][lang.value],
-                intro: langList["area1"]["intro"][lang.value],
-                voice: `./assets/${lang.value}v1.mp3`,
-              },
-              {
-                id: 2,
-                title: langList["area2"]["title"][lang.value],
-                cover: "https://s21.ax1x.com/2024/06/11/pkUQbXn.jpg",
-                banner: "https://s21.ax1x.com/2024/06/11/pkUMcZV.png",
-                subTitle: langList["area2"]["subTitle"][lang.value],
-                intro: langList["area2"]["intro"][lang.value],
-                voice: `./assets/${lang.value}v2.mp3`,
-              },
-              {
-                id: 3,
-                title: langList["area3"]["title"][lang.value],
-                cover: "https://s21.ax1x.com/2024/06/11/pkUQvkT.jpg",
-                banner: "https://s21.ax1x.com/2024/06/11/pkUMrMn.png",
-                subTitle: langList["area3"]["subTitle"][lang.value],
-                intro: langList["area3"]["intro"][lang.value],
-                voice: `./assets/${lang.value}v3.mp3`,
-              },
-              {
-                id: 4,
-                title: langList["area4"]["title"][lang.value],
-                cover: "https://s21.ax1x.com/2024/06/11/pkUQLmq.jpg",
-                banner: "./assets/banner3.png",
-                subTitle: langList["area4"]["subTitle"][lang.value],
-                intro: langList["area4"]["intro"][lang.value],
-                voice: `./assets/${lang.value}v4.mp3`,
-              },
-            ];
-            curInfo.value = stepContents.value.find(
-              (item) => item.id === curIdx.value
-            );
-          });
+          watch(
+            () => lang.value,
+            (newVal) => {
+              posterTitle.value = `./assets/${newVal}_title1.png`;
+              posterTitle2.value = `./assets/${newVal}_title2.png`;
+              stepContents.value = [
+                {
+                  id: 1,
+                  title: langList["area1"]["title"][newVal],
+                  cover: "https://s21.ax1x.com/2024/06/11/pkUQX7V.jpg",
+                  banner: "https://s21.ax1x.com/2024/06/11/pkUMyq0.png",
+                  subTitle: langList["area1"]["subTitle"][newVal],
+                  intro: langList["area1"]["intro"][newVal],
+                  voice: `./assets/${newVal}v1.mp3`,
+                },
+                {
+                  id: 2,
+                  title: langList["area2"]["title"][newVal],
+                  cover: "https://s21.ax1x.com/2024/06/11/pkUQbXn.jpg",
+                  banner: "https://s21.ax1x.com/2024/06/11/pkUMcZV.png",
+                  subTitle: langList["area2"]["subTitle"][newVal],
+                  intro: langList["area2"]["intro"][newVal],
+                  voice: `./assets/${newVal}v2.mp3`,
+                },
+                {
+                  id: 3,
+                  title: langList["area3"]["title"][newVal],
+                  cover: "https://s21.ax1x.com/2024/06/11/pkUQvkT.jpg",
+                  banner: "https://s21.ax1x.com/2024/06/11/pkUMrMn.png",
+                  subTitle: langList["area3"]["subTitle"][newVal],
+                  intro: langList["area3"]["intro"][newVal],
+                  voice: `./assets/${newVal}v3.mp3`,
+                },
+                {
+                  id: 4,
+                  title: langList["area4"]["title"][newVal],
+                  cover: "https://s21.ax1x.com/2024/06/11/pkUQLmq.jpg",
+                  banner: "./assets/banner3.png",
+                  subTitle: langList["area4"]["subTitle"][newVal],
+                  intro: langList["area4"]["intro"][newVal],
+                  voice: `./assets/${newVal}v4.mp3`,
+                },
+              ];
+
+              curInfo.value = stepContents.value.find(
+                (item) => item.id === curIdx.value
+              );
+            },
+            {
+              immediate: true,
+            }
+          );
 
           const getImageUrl = (url) => {
             return `./assets/${url}.jpg`;
@@ -255,7 +269,7 @@
           };
 
           const handleChangeLang = (e) => {
-            lang.value = e === "中文" ? "zh" : e === "英语" ? "en" : "jp";
+            lang.value = e === "中文" ? "cn" : e === "英语" ? "en" : "jp";
           };
 
           const handleTapDetail = (id) => {
@@ -292,6 +306,7 @@
           return {
             options,
             posterTitle,
+            posterTitle2,
             posterStepsMark,
             posterSteps,
             title,
