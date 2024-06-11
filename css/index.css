@@ -207,3 +207,7 @@
 .normal-btn {
   min-width: 100px;
 }
+
+[v-cloak] {
+  display: none !important;
+}
